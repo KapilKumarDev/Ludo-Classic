@@ -19,7 +19,7 @@ Ludo.rollDice = function(p){
   // visible face-cycling while "rolling" so the dice reads as random, not instant
   let ticks = 0;
   const cycle = setInterval(()=>{
-    Ludo.paintDicePips(p.color, 1+Math.floor(Math.random()*6), false);
+    Ludo.paintDicePips(p.color, 1+Math.floor(Math.random()*6));
     ticks++;
     if(ticks>=7){ clearInterval(cycle); }
   }, 130);
@@ -33,23 +33,30 @@ Ludo.rollDice = function(p){
     } else s.consecSix = 0;
 
     s.dice = val; s.rolled = true; s.animating = false;
-    Ludo.paintDicePips(p.color, val||6, val===0);
     Ludo.syncDice();
     Ludo.saveState();
-
-    if(val===0){ setTimeout(()=>Ludo.endTurn(false), 900); return; }
-
-    const movable = Ludo.movablePieces(p, val);
-    if(movable.length===0){
-      setTimeout(()=>Ludo.endTurn(val===6), 900);
-      return;
-    }
-    Ludo.highlightMovable(p, movable);
-    if(p.isAI){ setTimeout(()=>{
-      const choice = Ludo.aiPickMove(p, movable, val);
-      if(choice) Ludo.movePiece(p, choice, val);
-    }, 850); }
+    Ludo.resolveRoll(p);
   }, 950);
+};
+
+// What follows a roll that is on the table: a dead roll (no legal move, or a third six) ends the turn, a live one
+// waits for a move, which the computer picks for itself. A saved game resumes through here too, since a refresh
+// lands between the roll and whatever would have followed it.
+Ludo.resolveRoll = function(p){
+  const s = Ludo.state, val = s.dice;
+  Ludo.paintDicePips(p.color, val||6); // a 0 is a third six: the die shows the six it was
+  if(val===0){ setTimeout(()=>Ludo.endTurn(false), 900); return; }
+
+  const movable = Ludo.movablePieces(p, val);
+  if(movable.length===0){
+    setTimeout(()=>Ludo.endTurn(val===6), 900);
+    return;
+  }
+  Ludo.highlightMovable(p, movable);
+  if(p.isAI){ setTimeout(()=>{
+    const choice = Ludo.aiPickMove(p, movable, val);
+    if(choice) Ludo.movePiece(p, choice, val);
+  }, 850); }
 };
 
 Ludo.onPieceClick = function(p, pc){
@@ -62,39 +69,38 @@ Ludo.onPieceClick = function(p, pc){
   Ludo.movePiece(p, pc, s.dice);
 };
 
-Ludo.movePiece = function(p, pc, val){
+Ludo.movePiece = async function(p, pc, val){
   const s = Ludo.state;
   s.animating = true;
   document.querySelectorAll('.piece').forEach(el=>el.classList.remove('movable'));
 
+  const from = pc.steps;
   let bonus = false;
-  if(pc.steps===-1) pc.steps = 0;
+  if(from===-1) pc.steps = 0;
   else {
     pc.steps += val;
     if(pc.steps===Ludo.FINISH_STEPS) bonus = true;
   }
-  Ludo.renderGame();
+  await Ludo.walkPiece(p, pc, from);
 
-  setTimeout(()=>{
-    if(pc.steps>=0 && pc.steps<Ludo.HOME_ENTRY_STEP){
-      const abs = Ludo.absIndexOf(p,pc);
-      if(!Ludo.SAFE_INDICES.has(abs)){
-        const killed = Ludo.tryKill(p, abs);
-        if(killed){ bonus = true; Ludo.renderGame(); }
-      }
+  if(pc.steps>=0 && pc.steps<Ludo.HOME_ENTRY_STEP){
+    const abs = Ludo.absIndexOf(p,pc);
+    if(!Ludo.SAFE_INDICES.has(abs)){
+      const killed = Ludo.tryKill(p, abs);
+      if(killed){ bonus = true; Ludo.renderGame(); }
     }
-    if(val===6) bonus = true;
+  }
+  if(val===6) bonus = true;
 
-    const win = Ludo.checkWin(p);
-    if(win){
-      s.over = true; s.animating = false; s.winnerText = win.text;
-      Ludo.showWinner(win.text);
-      Ludo.saveState();
-      return;
-    }
-    s.animating = false;
-    setTimeout(()=>Ludo.endTurn(bonus), 500);
-  }, 480);
+  const win = Ludo.checkWin(p);
+  if(win){
+    s.over = true; s.animating = false; s.winnerText = win.text;
+    Ludo.showWinner(win.text);
+    Ludo.saveState();
+    return;
+  }
+  s.animating = false;
+  setTimeout(()=>Ludo.endTurn(bonus), 500);
 };
 
 Ludo.endTurn = function(giveExtra){

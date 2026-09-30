@@ -12,6 +12,8 @@
 
   if(Ludo.state.over){
     Ludo.showWinner(Ludo.state.winnerText);
+  } else if(Ludo.state.rolled){
+    Ludo.resolveRoll(Ludo.currentPlayer());
   } else {
     Ludo.scheduleAITurnIfNeeded();
   }

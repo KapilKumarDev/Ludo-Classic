@@ -10,7 +10,7 @@ Ludo.buildDice = function(){
     for(let i=0;i<9;i++){ const pip=document.createElement('div'); pip.className='pip'; cube.appendChild(pip); }
     cube.addEventListener('click', ()=> Ludo.onDiceClick(p));
     slotEl.appendChild(cube);
-    Ludo.paintDicePips(p.color, Ludo.state.rolled && Ludo.state.dice ? Ludo.state.dice : Ludo.DEFAULT_DICE_FACE, false);
+    Ludo.paintDicePips(p.color, Ludo.state.rolled && Ludo.state.dice ? Ludo.state.dice : Ludo.DEFAULT_DICE_FACE);
   });
 };
 
@@ -18,10 +18,10 @@ Ludo.DEFAULT_DICE_FACE = 1;
 
 Ludo.PIP_PATTERNS = { 1:[4], 2:[0,8], 3:[0,4,8], 4:[0,2,6,8], 5:[0,2,4,6,8], 6:[0,2,3,5,6,8] };
 
-Ludo.paintDicePips = function(color,val,forfeited){
+Ludo.paintDicePips = function(color,val){
   const cube = document.getElementById('dice-'+color);
   const pattern = Ludo.PIP_PATTERNS[val] || [];
-  [...cube.children].forEach((pip,i)=> pip.classList.toggle('on', !forfeited && pattern.includes(i)));
+  [...cube.children].forEach((pip,i)=> pip.classList.toggle('on', pattern.includes(i)));
 };
 
 // The turn never passes once someone wins, so the current player is the winner and lends the field its colour.
@@ -51,6 +51,6 @@ Ludo.renderGame = function(){
   Ludo.syncDice();
 
   Ludo.placePieces();
-  Ludo.highlightMovable(cp, s.rolled ? Ludo.movablePieces(cp, s.dice) : []);
+  Ludo.highlightMovable(cp, s.rolled && !s.animating ? Ludo.movablePieces(cp, s.dice) : []);
   Ludo.saveState();
 };

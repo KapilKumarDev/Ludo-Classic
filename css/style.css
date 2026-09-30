@@ -8,12 +8,14 @@
   --green:#1e8449; --green-d:#125c31;
   --yellow:#e1a014; --yellow-d:#a9760a;
   --blue:#2461a8;  --blue-d:#173f70;
-  --gold-light:#e9cf7a;
+  --gold-light:#e9cf7a; --gold-glow:#ffb800;
   --font-display:'Fraunces',serif; --font-body:'Inter',sans-serif;
 }
 /* Registered so a colour swap can be eased (the game screen takes the mover's colour). */
 @property --tone{syntax:'<color>';inherits:true;initial-value:transparent;}
 @property --tone-d{syntax:'<color>';inherits:true;initial-value:transparent;}
+/* The gold ring on a die waiting to be rolled; registered so blink can fade it. */
+@property --glow{syntax:'<color>';inherits:true;initial-value:transparent;}
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;width:100%;overflow:hidden;position:fixed;inset:0;}
 body{
@@ -72,7 +74,7 @@ body{
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.9em;
   background:linear-gradient(160deg,var(--tone-d),var(--wood-dark) 75%);
   opacity:0;pointer-events:none;cursor:pointer;
-  transition:flex-grow .35s ease,flex-basis .35s ease,opacity .3s ease,filter .2s ease;
+  transition:flex-grow .35s ease,flex-basis .35s ease,padding-bottom .35s ease,opacity .3s ease,filter .2s ease;
 }
 .seat.active{flex:1 1 0%;opacity:1;pointer-events:auto;}
 .seat.active:hover{filter:brightness(1.1);}
@@ -142,10 +144,12 @@ body{
 .setup-start:active{transform:translateX(-50%) translateY(2px);}
 #home :focus-visible,#setup :focus-visible,#settings :focus-visible,#game :focus-visible{outline:2px solid var(--gold-light);outline-offset:3px;}
 
-/* Portrait: seats stack as rows; the icon steps aside to leave room. */
+/* Portrait: seats stack as rows and run to the bottom of the screen; the icon steps aside to leave room. The
+   Start button floats over the last seat, so that seat keeps its content clear of the button. */
 @media (max-aspect-ratio:1/1){
-  .lineup{flex-direction:column;padding-bottom:6.5rem;}
+  .lineup{flex-direction:column;--start-clear:calc(env(safe-area-inset-bottom,0px) + 6.5rem);}
   .seat{gap:.5em;}
+  .seat.active:not(:has(~ .seat.active)){padding-bottom:var(--start-clear);}
   .seat-icon{display:none;}
 }
 
@@ -216,9 +220,8 @@ body{
   .dice-slot.bl,.dice-slot.br{place-content:end center;}
 }
 /* A die is a board cell that rolls: the same cream tile, with pips in its player's colour. Only the die of
-   whoever is on the move is at full strength; it pulses like a movable piece while it waits to be rolled. */
+   whoever is on the move is at full strength; its ring blinks while it waits to be rolled. */
 .dice-cube{
-  --k:1;
   width:calc(var(--die) * .82);aspect-ratio:1/1;border-radius:14%;
   background:linear-gradient(180deg,#fffaf0,var(--cream) 60%,var(--ivory-2));
   display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:12%;
@@ -227,8 +230,8 @@ body{
 }
 .dice-cube.turn{opacity:1;}
 .dice-cube.ready{
-  cursor:pointer;pointer-events:auto;animation:pulse 1s ease-in-out infinite;
-  box-shadow:0 0 0 .16rem var(--gold-light),0 .2rem 0 rgba(0,0,0,.28),0 .5rem .9rem rgba(0,0,0,.4);
+  cursor:pointer;pointer-events:auto;--glow:var(--gold-light);animation:blink 1s ease-in-out infinite;
+  box-shadow:0 0 0 .16rem var(--glow),0 .2rem 0 rgba(0,0,0,.28),0 .5rem .9rem rgba(0,0,0,.4);
 }
 .dice-cube.rolling{animation:diceShake .13s linear infinite;}
 @keyframes diceShake{0%{transform:rotate(-6deg);}50%{transform:rotate(6deg);}100%{transform:rotate(-6deg);}}
@@ -295,15 +298,16 @@ body{
    cannot share an element). --x / --y are the piece's centre in cell units, set by Ludo.placePieces; size and
    centring are in percentages of the board, so a piece follows the board at any size. */
 .piece{
-  --k:1;--size:calc(100% / var(--grid) * .9);--rim:var(--cream);
+  --k:1;--size:calc(100% / var(--grid) * .9);--rim:var(--cream);--rim-w:.1rem;--halo:transparent;--move:.45s;
   position:absolute;z-index:6;
   left:calc(var(--x) * 100% / var(--grid));top:calc(var(--y) * 100% / var(--grid));
   width:var(--size);aspect-ratio:1/1;margin:calc(var(--size) / -2);
   scale:var(--k);
-  filter:drop-shadow(.1rem 0 0 var(--rim)) drop-shadow(-.1rem 0 0 var(--rim))
-         drop-shadow(0 .1rem 0 var(--rim)) drop-shadow(0 -.1rem 0 var(--rim))
+  filter:drop-shadow(var(--rim-w) 0 0 var(--rim)) drop-shadow(calc(var(--rim-w) * -1) 0 0 var(--rim))
+         drop-shadow(0 var(--rim-w) 0 var(--rim)) drop-shadow(0 calc(var(--rim-w) * -1) 0 var(--rim))
+         drop-shadow(0 0 .4rem var(--halo))
          drop-shadow(0 .15rem .2rem rgba(0,0,0,.55));
-  transition:left .45s cubic-bezier(.4,0,.2,1),top .45s cubic-bezier(.4,0,.2,1),scale .2s ease;
+  transition:left var(--move) cubic-bezier(.4,0,.2,1),top var(--move) cubic-bezier(.4,0,.2,1),scale .2s ease;
 }
 /* The shape itself, also used by the option previews on the settings page. */
 .token{display:block;width:100%;aspect-ratio:1/1;background:var(--tone);}
@@ -315,12 +319,16 @@ body{
 }
 .piece.stacked{--k:.76;}
 .piece.done{--k:.58;}
-.piece.movable{--rim:var(--gold-light);z-index:8;cursor:pointer;animation:pulse 1s ease-in-out infinite;}
-@keyframes pulse{0%,100%{scale:var(--k);}50%{scale:calc(var(--k) * 1.22);}}
+/* a piece walking to its new cell: full size and above everything else it passes (Ludo.walkPiece sets --move) */
+.piece.moving{--k:1;z-index:9;}
+.piece.movable{--rim:var(--gold-light);--rim-w:.14rem;--halo:var(--gold-glow);z-index:8;cursor:pointer;}
+/* A die waiting to be rolled blinks its gold ring: to nothing and back. With reduced motion the ring simply
+   stays lit. A movable piece does not blink: it keeps a steady gold ring and halo. */
+@keyframes blink{0%,100%{--glow:var(--gold-light);}50%{--glow:transparent;}}
 
 @media (prefers-reduced-motion:reduce){
   .piece{transition-duration:.01s;}
-  .piece.movable,.dice-cube.ready,.dice-cube.rolling{animation:none;}
+  .dice-cube.ready,.dice-cube.rolling{animation:none;}
   #game{transition:none;}
 }
 

@@ -6,6 +6,10 @@ window.Ludo = window.Ludo || {};
 Ludo.STORAGE_KEY = 'ludoState';
 
 Ludo.saveState = function(){
+  // A move in progress is half-applied: the state already has the piece where it is going, but the turn is not
+  // settled yet. Saving then would resume a game that can neither continue nor be moved, so a refresh mid-move
+  // goes back to the last save, from before the move. (There is no state at all on the home and setup screens.)
+  if(Ludo.state?.animating) return;
   try{
     sessionStorage.setItem(Ludo.STORAGE_KEY, JSON.stringify({
       setupCfg: Ludo.setupCfg,

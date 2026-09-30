@@ -11,8 +11,13 @@ Ludo.movablePieces = function(p, val){
   return out;
 };
 
+// Index on the shared ring of the cell p stands on after `steps` steps from its start.
+Ludo.ringIndexAt = function(p, steps){
+  return (Ludo.START_INDEX[p.slot] + steps) % Ludo.RING_LENGTH;
+};
+
 Ludo.absIndexOf = function(p, pc){
-  return (Ludo.START_INDEX[p.slot] + pc.steps) % Ludo.RING_LENGTH;
+  return Ludo.ringIndexAt(p, pc.steps);
 };
 
 Ludo.tryKill = function(p, absIndex){

@@ -106,11 +106,12 @@ Ludo.buildPiece = function(p,pc){
   return el;
 };
 
-// [row, col] of the cell a piece stands on; null while it is still in its yard.
-Ludo.cellOfPiece = function(p,pc){
-  if(pc.steps===-1) return null;
-  if(pc.steps<Ludo.HOME_ENTRY_STEP) return Ludo.PATH[Ludo.absIndexOf(p,pc)];
-  return Ludo.homeColumnCell(p.slot, pc.steps-Ludo.HOME_ENTRY_STEP);
+// [row, col] of the cell p's piece stands on after `steps` steps. Only for pieces out in play: one still in its
+// yard (-1) or already home (FINISH_STEPS) stands on no cell.
+Ludo.cellAtSteps = function(p, steps){
+  return steps<Ludo.HOME_ENTRY_STEP
+    ? Ludo.PATH[Ludo.ringIndexAt(p, steps)]
+    : Ludo.homeColumnCell(p.slot, steps-Ludo.HOME_ENTRY_STEP);
 };
 
 // Offsets (in cells) that lay n pieces out on a small grid centred on the cell they share.
@@ -136,7 +137,7 @@ Ludo.pieceSpots = function(){
       if(!finished.has(p)) finished.set(p, []);
       finished.get(p).push(pc);
     } else {
-      const cell = Ludo.cellOfPiece(p,pc), key = cell.join(',');
+      const cell = Ludo.cellAtSteps(p,pc.steps), key = cell.join(',');
       if(!shared.has(key)) shared.set(key, { cell, pieces:[] });
       shared.get(key).pieces.push(pc);
     }
@@ -164,11 +165,36 @@ Ludo.placePieces = function(){
   const spots = Ludo.pieceSpots();
   Ludo.state.players.forEach(p=> p.pieces.forEach(pc=>{
     const el = document.getElementById(`pc-${p.color}-${pc.id}`), spot = spots.get(pc);
+    if(el.classList.contains('moving')) return; // a piece mid-walk is placed by Ludo.walkPiece
     el.style.setProperty('--x', +spot.x.toFixed(3));
     el.style.setProperty('--y', +spot.y.toFixed(3));
     el.classList.toggle('stacked', !!spot.stacked);
     el.classList.toggle('done', !!spot.done);
   }));
+};
+
+Ludo.wait = function(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+// Shows a piece getting from `from` steps to where the state now has it (pc.steps): it stands on each cell it
+// passes for one STEP_MS, then the board settles it on its final spot (fanned out, or in the centre if home).
+// The game state is already final; this only moves the piece on screen.
+Ludo.walkPiece = async function(p, pc, from){
+  const el = document.getElementById(`pc-${p.color}-${pc.id}`);
+  el.style.setProperty('--move', Ludo.STEP_MS+'ms');
+  el.classList.add('moving');
+  Ludo.renderGame(); // everything else settles now; the walker is skipped by placePieces
+  for(let steps=from+1; steps<pc.steps; steps++){
+    const [row,col] = Ludo.cellAtSteps(p, steps);
+    el.style.setProperty('--x', col+.5);
+    el.style.setProperty('--y', row+.5);
+    await Ludo.wait(Ludo.STEP_MS);
+  }
+  el.classList.remove('moving');
+  Ludo.renderGame(); // the last step
+  await Ludo.wait(Ludo.STEP_MS);
+  el.style.removeProperty('--move');
 };
 
 Ludo.highlightMovable = function(p, movable){
