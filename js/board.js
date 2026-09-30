@@ -99,6 +99,9 @@ Ludo.buildPiece = function(p,pc){
   const el = document.createElement('div');
   el.className = 'piece tone-'+p.color;
   el.id = `pc-${p.color}-${pc.id}`;
+  const token = document.createElement('span');
+  token.className = 'token '+Ludo.settings.pieceStyle;
+  el.appendChild(token);
   el.addEventListener('click', ()=> Ludo.onPieceClick(p,pc));
   return el;
 };

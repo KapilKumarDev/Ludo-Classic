@@ -40,6 +40,11 @@ Ludo.HOME_ENTRY_STEP = Ludo.RING_LENGTH - 1; // steps below this are still on th
 Ludo.HOME_LANE_LEN = Ludo.YARD_SIZE - 1;     // the arm minus its edge cell, which belongs to the ring
 Ludo.FINISH_STEPS = Ludo.HOME_ENTRY_STEP + Ludo.HOME_LANE_LEN; // one step past the last lane cell: into the centre
 
+// Player-adjustable settings: the piece styles on offer (id -> label) and the value a fresh browser starts with.
+// The keys of PIECE_STYLES are also the `pawn` / `disc` variant classes in style.css.
+Ludo.PIECE_STYLES = { pawn:'Pawn', disc:'Disc' };
+Ludo.DEFAULT_SETTINGS = { pieceStyle:'pawn' };
+
 // Safe squares: each colour's start, plus the star square STAR_OFFSET steps after it.
 Ludo.STAR_OFFSET = 8;
 Ludo.SAFE_INDICES = new Set(Ludo.SLOTS.flatMap(slot => [
