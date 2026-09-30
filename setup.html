@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ludo — Setup</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="setup" class="screen active">
+  <button type="button" class="back-btn" id="setupBack">← Back</button>
+  <div class="count-row" id="countRow" role="group" aria-label="Number of players">
+    <button type="button" class="count-opt" data-count="2">2</button>
+    <button type="button" class="count-opt" data-count="3">3</button>
+    <button type="button" class="count-opt" data-count="4">4</button>
+  </div>
+  <button type="button" class="team-toggle" id="teamToggle" hidden></button>
+  <div class="lineup" id="lineup"></div>
+  <button type="button" class="setup-start" id="startGameBtn">Start game</button>
+</div>
+
+<script src="js/constants.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/state.js"></script>
+<script src="js/setup.js"></script>
+</body>
+</html>

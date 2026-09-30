@@ -1,0 +1,308 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  --wood-dark:#2b1810; --wood:#4a2e1f; --wood-light:#6b4226;
+  --ivory:#f1e7d0; --ivory-2:#e8dabb;
+  --ink:#2a1a10; --cream:#f6efe0;
+  --red:#c0392b;   --red-d:#8a2419;
+  --green:#1e8449; --green-d:#125c31;
+  --yellow:#e1a014; --yellow-d:#a9760a;
+  --blue:#2461a8;  --blue-d:#173f70;
+  --gold:#c9a227; --gold-light:#e9cf7a; --gold-deep:#8a6f1c;
+  --font-display:'Fraunces',serif; --font-body:'Inter',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;width:100%;overflow:hidden;position:fixed;inset:0;}
+body{
+  font-family:var(--font-body);
+  background:radial-gradient(ellipse at 50% 30%,var(--wood-light) 0%,var(--wood) 55%,var(--wood-dark) 100%);
+  color:var(--cream);
+  display:flex;align-items:center;justify-content:center;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+
+.screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;}
+.screen.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ---------------- HOME ---------------- */
+#home{flex-direction:row;}
+.home-panel{
+  flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.1em;
+  cursor:pointer;position:relative;transition:flex .35s ease;border:none;background:none;color:var(--cream);
+}
+.home-panel:hover{flex:1.12;}
+.home-panel.computer{background:linear-gradient(160deg,var(--blue-d),var(--wood-dark) 75%);}
+.home-panel.local{background:linear-gradient(160deg,var(--red-d),var(--wood-dark) 75%);}
+.home-panel .icon{font-size:clamp(2.6rem,6vw,4rem);}
+.home-panel .label{font-family:var(--font-display);font-weight:700;font-size:clamp(1.3rem,3.4vw,2.1rem);}
+.home-panel .sub{opacity:.7;font-size:clamp(.75rem,1.6vw,.95rem);max-width:70%;text-align:center;}
+.home-title{
+  position:absolute;top:6%;left:50%;transform:translateX(-50%);
+  font-family:var(--font-display);font-weight:700;letter-spacing:.03em;
+  font-size:clamp(1.8rem,4.4vw,3rem);color:var(--gold-light);
+  text-shadow:0 3px 10px rgba(0,0,0,.5);z-index:2;pointer-events:none;
+}
+
+/* ---------------- SETUP ---------------- */
+/* Each player is a full-bleed seat in their own game color, same recipe as the home panels. */
+.tone-red{--tone:var(--red);--tone-d:var(--red-d);}
+.tone-green{--tone:var(--green);--tone-d:var(--green-d);}
+.tone-yellow{--tone:var(--yellow);--tone-d:var(--yellow-d);}
+.tone-blue{--tone:var(--blue);--tone-d:var(--blue-d);}
+
+.lineup{position:absolute;inset:0;display:flex;}
+.seat{
+  flex:0 1 0%;min-width:0;min-height:0;overflow:hidden;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.9em;
+  background:linear-gradient(160deg,var(--tone-d),var(--wood-dark) 75%);
+  opacity:0;pointer-events:none;cursor:pointer;
+  transition:flex-grow .35s ease,flex-basis .35s ease,opacity .3s ease,filter .2s ease;
+}
+.seat.active{flex:1 1 0%;opacity:1;pointer-events:auto;}
+.seat.active:hover{filter:brightness(1.1);}
+.seat-icon{font-size:clamp(2.4rem,5.6vw,3.6rem);color:var(--cream);}
+.seat-extra{height:4.6rem;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:.5rem;}
+.seat-team{font:600 .85rem var(--font-body);color:rgba(246,239,224,.85);text-shadow:0 2px 6px rgba(0,0,0,.4);}
+.seat-colors{display:flex;gap:clamp(.4rem,1.2vw,.7rem);}
+.color-dot{
+  width:clamp(1.9rem,3vw,2.3rem);aspect-ratio:1;border-radius:50%;border:none;background:var(--tone);
+  cursor:pointer;transition:transform .15s ease;
+}
+.color-dot:hover{transform:scale(1.12);}
+.color-dot.sel{box-shadow:0 0 0 3px var(--cream);}
+.seat-name{
+  width:80%;max-width:11rem;background:none;border:none;border-bottom:1px solid rgba(246,239,224,.3);
+  text-align:center;color:rgba(246,239,224,.72);font:500 .82rem var(--font-body);padding:.25em 0;
+}
+.seat-name::placeholder{color:rgba(246,239,224,.5);}
+.seat-name:focus{outline:none;border-bottom-color:var(--gold-light);color:var(--cream);}
+
+/* Back + count sit directly on the color, like the home title — no bar behind them. */
+.back-btn{
+  position:absolute;z-index:2;top:calc(env(safe-area-inset-top,0px) + 1.1rem);left:clamp(1rem,3vw,2rem);
+  background:none;border:none;color:var(--cream);font:500 .9rem var(--font-body);cursor:pointer;
+  text-shadow:0 1px 3px rgba(0,0,0,.9),0 2px 10px rgba(0,0,0,.65);padding:.6rem;margin:-.6rem;
+}
+.count-row{
+  position:absolute;z-index:2;top:calc(env(safe-area-inset-top,0px) + 1rem);left:50%;transform:translateX(-50%);
+  display:flex;gap:clamp(.9rem,2vw,1.5rem);
+}
+.count-opt{
+  position:relative;background:none;border:none;color:rgba(246,239,224,.55);cursor:pointer;
+  font:700 clamp(1.05rem,2.2vw,1.35rem) var(--font-display);text-shadow:0 1px 3px rgba(0,0,0,.9),0 2px 10px rgba(0,0,0,.65);
+  padding:.6rem .3rem;margin:-.6rem 0;transition:color .15s ease;
+}
+.count-opt:hover{color:var(--cream);}
+.count-opt.sel{color:var(--gold-light);}
+/* underline, not color alone, marks the selection: gold-on-gold (the yellow seat) would otherwise vanish */
+.count-opt.sel::after{
+  content:'';position:absolute;left:50%;bottom:.2rem;transform:translateX(-50%);
+  width:65%;height:2px;background:var(--gold-light);box-shadow:0 1px 4px rgba(0,0,0,.9);
+}
+
+/* Independent of player count - a separate axis, not a value bolted onto the count list.
+   Its label ("Teams · 2v2") is computed from the current count in JS, not hardcoded here,
+   so a future count that supports teams shows its own split without a markup change. */
+.team-toggle{
+  position:absolute;z-index:2;top:calc(env(safe-area-inset-top,0px) + 1.1rem);right:clamp(1rem,3vw,2rem);
+  background:none;border:none;color:rgba(246,239,224,.55);cursor:pointer;
+  font:700 clamp(.85rem,1.8vw,1.05rem) var(--font-display);text-shadow:0 1px 3px rgba(0,0,0,.9),0 2px 10px rgba(0,0,0,.65);
+  padding:.6rem;margin:-.6rem;transition:color .15s ease;
+}
+.team-toggle[hidden]{display:none;}
+.team-toggle:hover{color:var(--cream);}
+.team-toggle.sel{color:var(--gold-light);}
+.team-toggle.sel::after{
+  content:'';display:block;margin:.2rem auto 0;width:65%;height:2px;
+  background:var(--gold-light);box-shadow:0 1px 4px rgba(0,0,0,.9);
+}
+
+.setup-start{
+  position:absolute;z-index:2;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 1.4rem);transform:translateX(-50%);
+  width:min(22rem,80%);padding:.85em 0;border-radius:6px;border:none;
+  background:var(--cream);color:var(--wood-dark);
+  font:700 clamp(1.05rem,2.4vw,1.3rem) var(--font-display);cursor:pointer;
+}
+.setup-start:active{transform:translateX(-50%) translateY(2px);}
+#setup :focus-visible{outline:2px solid var(--gold-light);outline-offset:3px;}
+
+/* Portrait: seats stack as rows; the icon steps aside to leave room. */
+@media (max-aspect-ratio:1/1){
+  .lineup{flex-direction:column;padding-bottom:6.5rem;}
+  .seat{gap:.5em;}
+  .seat-icon{display:none;}
+}
+
+/* Shared with the game's winner overlay (Play Again). */
+.start-btn{
+  align-self:center;padding:.75em 2.6em;border-radius:30px;border:none;
+  background:linear-gradient(160deg,var(--gold-light),var(--gold) 70%);color:var(--wood-dark);
+  font-weight:700;font-size:1rem;cursor:pointer;box-shadow:0 5px 0 var(--gold-deep);font-family:var(--font-body);
+  flex:none;
+}
+.start-btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--gold-deep);}
+
+/* ---------------- GAME ---------------- */
+#game{
+  justify-content:flex-start;gap:.6rem;
+  padding:calc(env(safe-area-inset-top,0px) + .8rem) max(1rem,env(safe-area-inset-right,0px))
+          calc(env(safe-area-inset-bottom,0px) + .6rem) max(1rem,env(safe-area-inset-left,0px));
+}
+.game-top{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:46rem;}
+.turn-banner{font-weight:600;font-size:clamp(.8rem,1.8vw,1rem);padding:.35em 1.1em;border-radius:20px;background:rgba(0,0,0,.32);display:flex;align-items:center;gap:.5em;}
+.turn-dot{width:.7em;height:.7em;border-radius:50%;background:var(--tone);}
+.quit-btn{background:none;border:1px solid rgba(255,255,255,.28);color:var(--cream);border-radius:16px;padding:.32em .95em;font-size:.72rem;cursor:pointer;opacity:.7;font-family:var(--font-body);}
+.log-line{width:100%;max-width:46rem;text-align:center;font-size:.74rem;opacity:.65;min-height:1.4em;}
+
+/* The arena takes whatever the banner and log leave over and measures it (container units);
+   the table inside is sized from that, so the board is always a true square that fits.
+   Tall arenas put the dice in rows above/below the board, wide ones in columns beside it. */
+.arena{flex:1 1 0;min-height:0;width:100%;container:arena / size;display:grid;place-items:center;}
+.table{
+  --die:clamp(2.6rem,11cqmin,4.4rem);
+  --board:min(100cqw,100cqh - 2*var(--die));
+  display:grid;
+  grid-template-areas:"tl tr" "board board" "bl br";
+  grid-template-columns:repeat(2,calc(var(--board) / 2));
+  grid-template-rows:var(--die) var(--board) var(--die);
+}
+@container arena (min-aspect-ratio:1/1){
+  .table{
+    --board:min(100cqh,100cqw - 2*var(--die));
+    grid-template-areas:"tl board tr" "bl board br";
+    grid-template-columns:var(--die) var(--board) var(--die);
+    grid-template-rows:repeat(2,calc(var(--board) / 2));
+  }
+}
+
+/* ---- dice ---- */
+.dice-slot{display:grid;}
+.dice-slot.tl{grid-area:tl;place-content:center start;} .dice-slot.tr{grid-area:tr;place-content:center end;}
+.dice-slot.bl{grid-area:bl;place-content:center start;} .dice-slot.br{grid-area:br;place-content:center end;}
+@container arena (min-aspect-ratio:1/1){
+  .dice-slot.tl,.dice-slot.tr{place-content:start center;}
+  .dice-slot.bl,.dice-slot.br{place-content:end center;}
+}
+.dice-cube{
+  width:calc(var(--die) * .78);aspect-ratio:1/1;background:color-mix(in srgb,var(--tone) 16%,var(--cream));border-radius:20%;
+  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:11%;
+  box-shadow:0 4px 0 rgba(0,0,0,.3),0 0 0 2px var(--tone),0 8px 14px rgba(0,0,0,.4);cursor:pointer;
+  transition:filter .15s,transform .15s;border:2px solid rgba(0,0,0,.08);
+}
+.dice-cube.disabled{filter:saturate(.55) brightness(.72);cursor:default;pointer-events:none;}
+.dice-cube.active-glow{box-shadow:0 4px 0 rgba(0,0,0,.3),0 0 0 3px var(--gold),0 0 1rem rgba(233,207,122,.6),0 8px 14px rgba(0,0,0,.4);}
+.dice-cube.rolling{animation:diceShake .13s linear infinite;}
+@keyframes diceShake{0%{transform:rotate(-6deg);}50%{transform:rotate(6deg);}100%{transform:rotate(-6deg);}}
+.pip{width:100%;height:100%;border-radius:50%;background:var(--ink);opacity:0;align-self:center;justify-self:center;}
+.pip.on{opacity:1;}
+
+/* ---- board ---- */
+/* Same language as the home and setup screens: colour blocks that fade from the tone into wood,
+   cream on top, no frame. Board.js sets --grid, --yard, --court, --core and --core-at from constants.js. */
+.board-wrap{grid-area:board;border-radius:.9rem;overflow:hidden;box-shadow:0 1rem 2.2rem rgba(0,0,0,.5);}
+.board{
+  --line:rgba(42,26,16,.16);
+  position:relative;width:100%;height:100%;
+  display:grid;grid-template:repeat(var(--grid),1fr) / repeat(var(--grid),1fr);
+  background:var(--cream);
+}
+
+/* Each yard owns a quarter of the board: a colour panel reaching under the cross to the centre, so the
+   corners of the centre square carry the yard's colour and no square shows around the circle. The cross
+   cells sit on top of it. The yard itself only places the courtyard. */
+.yard{display:grid;grid-template:repeat(var(--yard),1fr) / repeat(var(--yard),1fr);}
+.yard.tl{grid-area:1 / 1 / span var(--yard) / span var(--yard);}
+.yard.tr{grid-area:1 / span var(--yard) / span var(--yard) / -1;}
+.yard.bl{grid-area:span var(--yard) / 1 / -1 / span var(--yard);}
+.yard.br{grid-area:span var(--yard) / span var(--yard) / -1 / -1;}
+.quarter{
+  position:absolute;width:50%;height:50%;
+  background:linear-gradient(var(--toward),var(--wood-dark),var(--tone-d) 45%,var(--tone));
+}
+.yard.tl .quarter{top:0;left:0;--toward:to bottom right;}
+.yard.tr .quarter{top:0;right:0;--toward:to bottom left;}
+.yard.bl .quarter{bottom:0;left:0;--toward:to top right;}
+.yard.br .quarter{bottom:0;right:0;--toward:to top left;}
+.yard.idle .quarter{background:var(--ivory-2);}
+.courtyard{
+  grid-area:2 / 2 / span var(--court) / span var(--court);
+  position:relative;display:grid;grid-template:1fr 1fr / 1fr 1fr;place-items:center;
+  background:radial-gradient(circle at 50% 40%,#fffaf0,var(--cream) 70%,var(--ivory-2));border-radius:12%;
+  box-shadow:inset 0 .25rem .5rem rgba(0,0,0,.22),0 1px 0 rgba(255,255,255,.18);
+}
+.socket{
+  width:62%;aspect-ratio:1/1;border-radius:50%;background:color-mix(in srgb,var(--tone) 30%,var(--ivory-2));
+  box-shadow:inset 0 .18rem .35rem rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.7);
+}
+
+/* Cells: ring (shared track) and lane (a colour's home stretch). A start cell is a ring cell. */
+.cell{
+  position:relative;background:linear-gradient(180deg,#fffaf0,var(--cream) 60%,var(--ivory-2));
+  box-shadow:inset 0 0 0 1px var(--line),inset 0 -.14rem 0 rgba(0,0,0,.07);
+}
+.cell.lane,.cell.start{
+  --line:rgba(255,255,255,.35);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--tone) 78%,white),var(--tone) 60%,var(--tone-d));
+}
+.cell.lane.idle{--line:rgba(42,26,16,.16);background:var(--ivory-2);}
+.cell.safe::after{
+  content:'';position:absolute;inset:22%;background:var(--wood-light);
+  clip-path:polygon(50% 0%,63% 38%,100% 38%,69% 61%,82% 100%,50% 76%,18% 100%,31% 61%,0% 38%,37% 38%);
+}
+.cell.start.safe::after{background:var(--cream);}
+
+/* The centre circle, inscribed in the CORE_SIZE square: its edge never reaches a cell. The rim, wedge seams
+   and hub are drawn inside it, in percentages, so it stays exact at any board size. */
+.core{
+  grid-area:var(--core-at) / var(--core-at) / span var(--core) / span var(--core);
+  position:relative;z-index:2;border-radius:50%;overflow:hidden;background:var(--wood-dark);
+  box-shadow:0 .15rem .4rem rgba(0,0,0,.35);
+}
+.wedge{position:absolute;inset:0;background:linear-gradient(160deg,color-mix(in srgb,var(--tone) 80%,white),var(--tone) 55%,var(--tone-d));}
+.wedge.idle{background:var(--ivory-2);}
+.wedge.tl{clip-path:polygon(0 0,0 100%,50% 50%);}      /* left  : tl's lane arrives from the left   */
+.wedge.tr{clip-path:polygon(0 0,100% 0,50% 50%);}      /* top   : tr's lane arrives from the top    */
+.wedge.br{clip-path:polygon(100% 0,100% 100%,50% 50%);}/* right : br's lane arrives from the right  */
+.wedge.bl{clip-path:polygon(0 100%,100% 100%,50% 50%);}/* bottom: bl's lane arrives from the bottom */
+.core::before{ /* rim and seams between the wedges */
+  content:'';position:absolute;inset:0;z-index:1;
+  background:
+    radial-gradient(circle closest-side,transparent 91%,var(--cream) 91% 95%,var(--wood-dark) 95%),
+    repeating-conic-gradient(from 44.5deg,var(--cream) 0 1deg,transparent 1deg 90deg);
+}
+.core::after{ /* hub */
+  content:'';position:absolute;inset:38%;z-index:2;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fffaf0,var(--cream) 60%,var(--ivory-2));
+  box-shadow:0 0 0 .14rem var(--wood-dark),0 .12rem .3rem rgba(0,0,0,.5);
+}
+
+/* ---- pieces ---- */
+/* --x / --y are the piece's centre in cell units, set by Ludo.placePieces. Size and centring are
+   in percentages of the board, so a piece follows the board whatever size it is drawn at. */
+.piece{
+  --k:1;--size:calc(100% / var(--grid) * .62);
+  position:absolute;z-index:6;
+  left:calc(var(--x) * 100% / var(--grid));top:calc(var(--y) * 100% / var(--grid));
+  width:var(--size);aspect-ratio:1/1;margin:calc(var(--size) / -2);
+  border-radius:50% 50% 50% 4%;rotate:-45deg;scale:var(--k);
+  background:radial-gradient(circle at 70% 30%,color-mix(in srgb,var(--tone) 62%,white),var(--tone) 55%,var(--tone-d));
+  box-shadow:0 .15rem .3rem rgba(0,0,0,.5),inset 0 0 0 .13rem rgba(255,255,255,.6);
+  transition:left .45s cubic-bezier(.4,0,.2,1),top .45s cubic-bezier(.4,0,.2,1),scale .2s ease;
+}
+.piece.stacked{--k:.76;}
+.piece.done{--k:.58;}
+.piece.movable{
+  z-index:8;cursor:pointer;animation:pulse 1s ease-in-out infinite;
+  box-shadow:0 0 0 .16rem var(--gold-light),0 .15rem .5rem rgba(0,0,0,.6),inset 0 0 0 .13rem rgba(255,255,255,.6);
+}
+@keyframes pulse{0%,100%{scale:var(--k);}50%{scale:calc(var(--k) * 1.22);}}
+
+@media (prefers-reduced-motion:reduce){
+  .piece{transition-duration:.01s;}
+  .piece.movable,.dice-cube.rolling{animation:none;}
+}
+
+.winner-overlay{position:fixed;inset:0;background:rgba(15,8,4,.85);display:none;align-items:center;justify-content:center;flex-direction:column;gap:1.1em;z-index:50;}
+.winner-overlay.active{display:flex;animation:fadeIn .4s ease both;}
+.winner-overlay h2{font-family:var(--font-display);font-size:clamp(1.5rem,4.4vw,2.2rem);color:var(--gold-light);text-align:center;padding:0 1em;}

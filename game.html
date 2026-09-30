@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ludo — Game</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="game" class="screen active">
+  <div class="game-top">
+    <div class="turn-banner" id="turnBanner"></div>
+    <button class="quit-btn" id="quitBtn">Exit</button>
+  </div>
+  <div class="arena">
+    <div class="table">
+      <div class="dice-slot tl"></div>
+      <div class="dice-slot tr"></div>
+      <div class="board-wrap"><div class="board" id="board"></div></div>
+      <div class="dice-slot bl"></div>
+      <div class="dice-slot br"></div>
+    </div>
+  </div>
+  <div class="log-line" id="logLine"></div>
+</div>
+
+<div class="winner-overlay" id="winnerOverlay">
+  <h2 id="winnerText"></h2>
+  <button class="start-btn" id="playAgainBtn">Play Again</button>
+</div>
+
+<script src="js/constants.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/game-state.js"></script>
+<script src="js/rules.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/board.js"></script>
+<script src="js/render.js"></script>
+<script src="js/dice.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
