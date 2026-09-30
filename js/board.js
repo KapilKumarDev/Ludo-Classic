@@ -82,9 +82,8 @@ Ludo.buildCell = function(r,c,info){
   return cell;
 };
 
-// The centre: a circle inscribed in the CORE_SIZE square, so it never covers a cell a piece can stand on.
-// The square's corners show the colour of the yard they belong to (see buildYard). One wedge per corner,
-// facing the lane that feeds it.
+// The centre: the CORE_SIZE square, cut into one wedge per corner, each facing the lane that feeds it.
+// It is never a cell, so nothing a piece walks on is covered.
 Ludo.buildCore = function(){
   const core = document.createElement('div');
   core.className = 'core';
@@ -145,14 +144,14 @@ Ludo.pieceSpots = function(){
     pieces.forEach((pc,i)=> spots.set(pc, { x:c+.5+fan[i].dx, y:r+.5+fan[i].dy, stacked:pieces.length>1 }));
   });
 
-  // Finished pieces rest on the centre circle, huddled toward the lane they came home through.
-  const mid = Ludo.GRID_SIZE/2;
+  // Finished pieces rest in their colour's wedge of the centre, huddled toward the lane they came home through.
+  const mid = Ludo.GRID_SIZE/2, rest = .85; // rest: how far from the middle, in cells
   finished.forEach((pieces,p)=>{
     const [lr,lc] = Ludo.homeColumnCell(p.slot, Ludo.HOME_LANE_LEN-1);
     const ux = Math.sign(lc-Ludo.MID), uy = Math.sign(lr-Ludo.MID);
     pieces.forEach((pc,i)=>{
       const along = (i-(pieces.length-1)/2)*.17;
-      spots.set(pc, { x:mid+ux*.5+Math.abs(uy)*along, y:mid+uy*.5+Math.abs(ux)*along, done:true });
+      spots.set(pc, { x:mid+ux*rest+Math.abs(uy)*along, y:mid+uy*rest+Math.abs(ux)*along, done:true });
     });
   });
   return spots;

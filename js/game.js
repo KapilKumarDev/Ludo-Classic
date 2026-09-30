@@ -11,8 +11,7 @@
   Ludo.renderGame();
 
   if(Ludo.state.over){
-    document.getElementById('winnerText').textContent = '🎉 '+Ludo.state.winnerText;
-    document.getElementById('winnerOverlay').classList.add('active');
+    Ludo.showWinner(Ludo.state.winnerText);
   } else {
     Ludo.scheduleAITurnIfNeeded();
   }

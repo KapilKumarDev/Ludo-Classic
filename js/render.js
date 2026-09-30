@@ -1,4 +1,4 @@
-// render.js — HUD and dice: turn banner, dice faces, log line. The board itself lives in board.js.
+// render.js — HUD and dice: turn title, dice faces and the winner overlay. The board itself lives in board.js.
 
 Ludo.buildDice = function(){
   Ludo.state.players.forEach(p=>{
@@ -24,21 +24,33 @@ Ludo.paintDicePips = function(color,val,forfeited){
   [...cube.children].forEach((pip,i)=> pip.classList.toggle('on', !forfeited && pattern.includes(i)));
 };
 
+// The turn never passes once someone wins, so the current player is the winner and lends the field its colour.
+Ludo.showWinner = function(text){
+  const overlay = document.getElementById('winnerOverlay');
+  Ludo.COLORS.forEach(c=> overlay.classList.toggle('tone-'+c, c===Ludo.currentPlayer().color));
+  document.getElementById('winnerText').textContent = text;
+  overlay.classList.add('active');
+};
+
+// Only the die of whoever is on the move is at full strength, and it invites a click only until it is rolled.
+Ludo.syncDice = function(){
+  const s = Ludo.state, cp = Ludo.currentPlayer();
+  document.querySelectorAll('.dice-cube').forEach(d=>{
+    const mine = d.id==='dice-'+cp.color;
+    d.classList.toggle('turn', mine);
+    d.classList.toggle('ready', mine && !s.rolled && !cp.isAI);
+  });
+};
+
 Ludo.renderGame = function(){
   const s = Ludo.state, cp = Ludo.currentPlayer();
-  const banner = document.getElementById('turnBanner');
-  banner.innerHTML = '';
-  const dot = document.createElement('span'); dot.className = 'turn-dot tone-'+cp.color;
-  banner.appendChild(dot);
-  banner.appendChild(document.createTextNode(`${cp.name}'s turn`));
+  document.getElementById('turnTitle').textContent = `${cp.name}'s turn`;
+  const game = document.getElementById('game');
+  Ludo.COLORS.forEach(c=> game.classList.toggle('tone-'+c, c===cp.color));
 
-  document.querySelectorAll('.dice-cube').forEach(d=>{ d.classList.add('disabled'); d.classList.remove('active-glow'); });
-  const activeDice = document.getElementById('dice-'+cp.color);
-  if(activeDice && !s.rolled && !cp.isAI){ activeDice.classList.remove('disabled'); activeDice.classList.add('active-glow'); }
+  Ludo.syncDice();
 
   Ludo.placePieces();
   Ludo.highlightMovable(cp, s.rolled ? Ludo.movablePieces(cp, s.dice) : []);
   Ludo.saveState();
 };
-
-Ludo.log = function(msg){ document.getElementById('logLine').textContent = msg; };

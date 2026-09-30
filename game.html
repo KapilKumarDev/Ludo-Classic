@@ -9,10 +9,8 @@
 <body>
 
 <div id="game" class="screen active">
-  <div class="game-top">
-    <div class="turn-banner" id="turnBanner"></div>
-    <button class="quit-btn" id="quitBtn">Exit</button>
-  </div>
+  <button type="button" class="back-btn" id="quitBtn">← Exit</button>
+  <div class="turn-title" id="turnTitle"></div>
   <div class="arena">
     <div class="table">
       <div class="dice-slot tl"></div>
@@ -22,12 +20,11 @@
       <div class="dice-slot br"></div>
     </div>
   </div>
-  <div class="log-line" id="logLine"></div>
 </div>
 
 <div class="winner-overlay" id="winnerOverlay">
   <h2 id="winnerText"></h2>
-  <button class="start-btn" id="playAgainBtn">Play Again</button>
+  <button type="button" class="cream-btn" id="playAgainBtn">Play again</button>
 </div>
 
 <script src="js/constants.js"></script>

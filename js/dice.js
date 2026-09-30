@@ -29,19 +29,18 @@ Ludo.rollDice = function(p){
     let val = finalVal;
     if(val===6){
       s.consecSix++;
-      if(s.consecSix===3){ val=0; Ludo.log(`${p.name} rolled three 6s in a row — turn forfeited.`); }
+      if(s.consecSix===3) val=0;
     } else s.consecSix = 0;
 
     s.dice = val; s.rolled = true; s.animating = false;
     Ludo.paintDicePips(p.color, val||6, val===0);
+    Ludo.syncDice();
     Ludo.saveState();
 
     if(val===0){ setTimeout(()=>Ludo.endTurn(false), 900); return; }
 
-    Ludo.log(`${p.name} rolled a ${val}.`);
     const movable = Ludo.movablePieces(p, val);
     if(movable.length===0){
-      Ludo.log(`${p.name} has no valid move.`);
       setTimeout(()=>Ludo.endTurn(val===6), 900);
       return;
     }
@@ -69,10 +68,10 @@ Ludo.movePiece = function(p, pc, val){
   document.querySelectorAll('.piece').forEach(el=>el.classList.remove('movable'));
 
   let bonus = false;
-  if(pc.steps===-1){ pc.steps = 0; Ludo.log(`${p.name} brought a piece out.`); }
+  if(pc.steps===-1) pc.steps = 0;
   else {
     pc.steps += val;
-    if(pc.steps===Ludo.FINISH_STEPS){ Ludo.log(`${p.name}'s piece reached home!`); bonus = true; }
+    if(pc.steps===Ludo.FINISH_STEPS) bonus = true;
   }
   Ludo.renderGame();
 
@@ -81,7 +80,7 @@ Ludo.movePiece = function(p, pc, val){
       const abs = Ludo.absIndexOf(p,pc);
       if(!Ludo.SAFE_INDICES.has(abs)){
         const killed = Ludo.tryKill(p, abs);
-        if(killed){ bonus = true; Ludo.log(`${p.name} captured a piece and gets an extra roll!`); Ludo.renderGame(); }
+        if(killed){ bonus = true; Ludo.renderGame(); }
       }
     }
     if(val===6) bonus = true;
@@ -89,8 +88,7 @@ Ludo.movePiece = function(p, pc, val){
     const win = Ludo.checkWin(p);
     if(win){
       s.over = true; s.animating = false; s.winnerText = win.text;
-      document.getElementById('winnerText').textContent = '🎉 '+win.text;
-      document.getElementById('winnerOverlay').classList.add('active');
+      Ludo.showWinner(win.text);
       Ludo.saveState();
       return;
     }
@@ -104,7 +102,6 @@ Ludo.endTurn = function(giveExtra){
   s.rolled = false; s.dice = 0;
   document.querySelectorAll('.piece').forEach(el=>el.classList.remove('movable'));
   if(giveExtra){
-    Ludo.log(`${Ludo.currentPlayer().name} rolls again!`);
     Ludo.renderGame();
     Ludo.scheduleAITurnIfNeeded();
     return;

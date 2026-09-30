@@ -2,15 +2,18 @@
 
 :root{
   --wood-dark:#2b1810; --wood:#4a2e1f; --wood-light:#6b4226;
-  --ivory:#f1e7d0; --ivory-2:#e8dabb;
-  --ink:#2a1a10; --cream:#f6efe0;
+  --ivory-2:#e8dabb;
+  --cream:#f6efe0;
   --red:#c0392b;   --red-d:#8a2419;
   --green:#1e8449; --green-d:#125c31;
   --yellow:#e1a014; --yellow-d:#a9760a;
   --blue:#2461a8;  --blue-d:#173f70;
-  --gold:#c9a227; --gold-light:#e9cf7a; --gold-deep:#8a6f1c;
+  --gold-light:#e9cf7a;
   --font-display:'Fraunces',serif; --font-body:'Inter',sans-serif;
 }
+/* Registered so a colour swap can be eased (the game screen takes the mover's colour). */
+@property --tone{syntax:'<color>';inherits:true;initial-value:transparent;}
+@property --tone-d{syntax:'<color>';inherits:true;initial-value:transparent;}
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;width:100%;overflow:hidden;position:fixed;inset:0;}
 body{
@@ -78,7 +81,7 @@ body{
 .seat-name::placeholder{color:rgba(246,239,224,.5);}
 .seat-name:focus{outline:none;border-bottom-color:var(--gold-light);color:var(--cream);}
 
-/* Back + count sit directly on the color, like the home title — no bar behind them. */
+/* Back/Exit + count sit directly on the color, like the home title — no bar behind them. */
 .back-btn{
   position:absolute;z-index:2;top:calc(env(safe-area-inset-top,0px) + 1.1rem);left:clamp(1rem,3vw,2rem);
   background:none;border:none;color:var(--cream);font:500 .9rem var(--font-body);cursor:pointer;
@@ -118,14 +121,14 @@ body{
   background:var(--gold-light);box-shadow:0 1px 4px rgba(0,0,0,.9);
 }
 
-.setup-start{
-  position:absolute;z-index:2;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 1.4rem);transform:translateX(-50%);
+.cream-btn{
   width:min(22rem,80%);padding:.85em 0;border-radius:6px;border:none;
   background:var(--cream);color:var(--wood-dark);
   font:700 clamp(1.05rem,2.4vw,1.3rem) var(--font-display);cursor:pointer;
 }
+.setup-start{position:absolute;z-index:2;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 1.4rem);transform:translateX(-50%);}
 .setup-start:active{transform:translateX(-50%) translateY(2px);}
-#setup :focus-visible{outline:2px solid var(--gold-light);outline-offset:3px;}
+#setup :focus-visible,#game :focus-visible{outline:2px solid var(--gold-light);outline-offset:3px;}
 
 /* Portrait: seats stack as rows; the icon steps aside to leave room. */
 @media (max-aspect-ratio:1/1){
@@ -134,33 +137,28 @@ body{
   .seat-icon{display:none;}
 }
 
-/* Shared with the game's winner overlay (Play Again). */
-.start-btn{
-  align-self:center;padding:.75em 2.6em;border-radius:30px;border:none;
-  background:linear-gradient(160deg,var(--gold-light),var(--gold) 70%);color:var(--wood-dark);
-  font-weight:700;font-size:1rem;cursor:pointer;box-shadow:0 5px 0 var(--gold-deep);font-family:var(--font-body);
-  flex:none;
-}
-.start-btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--gold-deep);}
-
 /* ---------------- GAME ---------------- */
+/* The whole screen is the colour of whoever's turn it is - same recipe as a setup seat - and eases to the
+   next mover's colour when the turn passes. Render.js puts the mover's tone class on #game. */
 #game{
-  justify-content:flex-start;gap:.6rem;
-  padding:calc(env(safe-area-inset-top,0px) + .8rem) max(1rem,env(safe-area-inset-right,0px))
-          calc(env(safe-area-inset-bottom,0px) + .6rem) max(1rem,env(safe-area-inset-left,0px));
+  justify-content:flex-start;
+  background:linear-gradient(160deg,var(--tone-d),var(--wood-dark) 75%);
+  transition:--tone-d .45s ease;
+  padding:calc(env(safe-area-inset-top,0px) + 3.4rem) max(1rem,env(safe-area-inset-right,0px))
+          calc(env(safe-area-inset-bottom,0px) + .8rem) max(1rem,env(safe-area-inset-left,0px));
 }
-.game-top{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:46rem;}
-.turn-banner{font-weight:600;font-size:clamp(.8rem,1.8vw,1rem);padding:.35em 1.1em;border-radius:20px;background:rgba(0,0,0,.32);display:flex;align-items:center;gap:.5em;}
-.turn-dot{width:.7em;height:.7em;border-radius:50%;background:var(--tone);}
-.quit-btn{background:none;border:1px solid rgba(255,255,255,.28);color:var(--cream);border-radius:16px;padding:.32em .95em;font-size:.72rem;cursor:pointer;opacity:.7;font-family:var(--font-body);}
-.log-line{width:100%;max-width:46rem;text-align:center;font-size:.74rem;opacity:.65;min-height:1.4em;}
+.turn-title{
+  position:absolute;z-index:2;top:calc(env(safe-area-inset-top,0px) + 1rem);left:50%;transform:translateX(-50%);
+  font:700 clamp(1.05rem,2.2vw,1.35rem) var(--font-display);white-space:nowrap;
+  text-shadow:0 1px 3px rgba(0,0,0,.9),0 2px 10px rgba(0,0,0,.65);
+}
 
-/* The arena takes whatever the banner and log leave over and measures it (container units);
+/* The arena takes whatever the title leaves over and measures it (container units);
    the table inside is sized from that, so the board is always a true square that fits.
    Tall arenas put the dice in rows above/below the board, wide ones in columns beside it. */
 .arena{flex:1 1 0;min-height:0;width:100%;container:arena / size;display:grid;place-items:center;}
 .table{
-  --die:clamp(2.6rem,11cqmin,4.4rem);
+  --die:clamp(3rem,15cqmin,5.6rem);
   --board:min(100cqw,100cqh - 2*var(--die));
   display:grid;
   grid-template-areas:"tl tr" "board board" "bl br";
@@ -184,125 +182,110 @@ body{
   .dice-slot.tl,.dice-slot.tr{place-content:start center;}
   .dice-slot.bl,.dice-slot.br{place-content:end center;}
 }
+/* A die is a board cell that rolls: the same cream tile, with pips in its player's colour. Only the die of
+   whoever is on the move is at full strength; it pulses like a movable piece while it waits to be rolled. */
 .dice-cube{
-  width:calc(var(--die) * .78);aspect-ratio:1/1;background:color-mix(in srgb,var(--tone) 16%,var(--cream));border-radius:20%;
-  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:11%;
-  box-shadow:0 4px 0 rgba(0,0,0,.3),0 0 0 2px var(--tone),0 8px 14px rgba(0,0,0,.4);cursor:pointer;
-  transition:filter .15s,transform .15s;border:2px solid rgba(0,0,0,.08);
+  --k:1;
+  width:calc(var(--die) * .82);aspect-ratio:1/1;border-radius:14%;
+  background:linear-gradient(180deg,#fffaf0,var(--cream) 60%,var(--ivory-2));
+  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:12%;
+  box-shadow:0 .2rem 0 rgba(0,0,0,.28),0 .5rem .9rem rgba(0,0,0,.4);
+  opacity:.55;pointer-events:none;transition:opacity .3s ease;
 }
-.dice-cube.disabled{filter:saturate(.55) brightness(.72);cursor:default;pointer-events:none;}
-.dice-cube.active-glow{box-shadow:0 4px 0 rgba(0,0,0,.3),0 0 0 3px var(--gold),0 0 1rem rgba(233,207,122,.6),0 8px 14px rgba(0,0,0,.4);}
+.dice-cube.turn{opacity:1;}
+.dice-cube.ready{
+  cursor:pointer;pointer-events:auto;animation:pulse 1s ease-in-out infinite;
+  box-shadow:0 0 0 .16rem var(--gold-light),0 .2rem 0 rgba(0,0,0,.28),0 .5rem .9rem rgba(0,0,0,.4);
+}
 .dice-cube.rolling{animation:diceShake .13s linear infinite;}
 @keyframes diceShake{0%{transform:rotate(-6deg);}50%{transform:rotate(6deg);}100%{transform:rotate(-6deg);}}
-.pip{width:100%;height:100%;border-radius:50%;background:var(--ink);opacity:0;align-self:center;justify-self:center;}
+.pip{width:100%;height:100%;border-radius:50%;background:var(--tone-d);opacity:0;align-self:center;justify-self:center;}
 .pip.on{opacity:1;}
 
 /* ---- board ---- */
-/* Same language as the home and setup screens: colour blocks that fade from the tone into wood,
-   cream on top, no frame. Board.js sets --grid, --yard, --court, --core and --core-at from constants.js. */
-.board-wrap{grid-area:board;border-radius:.9rem;overflow:hidden;box-shadow:0 1rem 2.2rem rgba(0,0,0,.5);}
+/* The four setup seats set into one wood table. Each yard is a colour field with a crisp edge that fades into
+   the wood toward the centre; the track is a path of cream beads across the wood between them; the centre
+   is where the four colours meet. Board.js sets --grid, --yard, --court, --core and --core-at from constants.js. */
+.board-wrap{grid-area:board;border-radius:.25rem;overflow:hidden;box-shadow:0 0 0 1px rgba(246,239,224,.14),0 1rem 2.2rem rgba(0,0,0,.5);}
 .board{
-  --line:rgba(42,26,16,.16);
   position:relative;width:100%;height:100%;
   display:grid;grid-template:repeat(var(--grid),1fr) / repeat(var(--grid),1fr);
-  background:var(--cream);
+  background:var(--wood-dark);
 }
 
-/* Each yard owns a quarter of the board: a colour panel reaching under the cross to the centre, so the
-   corners of the centre square carry the yard's colour and no square shows around the circle. The cross
-   cells sit on top of it. The yard itself only places the courtyard. */
-.yard{display:grid;grid-template:repeat(var(--yard),1fr) / repeat(var(--yard),1fr);}
+/* A yard owns a YARD_SIZE square in its corner: the seat's colour field, and the four wells its pieces wait in. */
+.yard{position:relative;display:grid;grid-template:repeat(var(--yard),1fr) / repeat(var(--yard),1fr);}
 .yard.tl{grid-area:1 / 1 / span var(--yard) / span var(--yard);}
 .yard.tr{grid-area:1 / span var(--yard) / span var(--yard) / -1;}
 .yard.bl{grid-area:span var(--yard) / 1 / -1 / span var(--yard);}
 .yard.br{grid-area:span var(--yard) / span var(--yard) / -1 / -1;}
-.quarter{
-  position:absolute;width:50%;height:50%;
-  background:linear-gradient(var(--toward),var(--wood-dark),var(--tone-d) 45%,var(--tone));
-}
-.yard.tl .quarter{top:0;left:0;--toward:to bottom right;}
-.yard.tr .quarter{top:0;right:0;--toward:to bottom left;}
-.yard.bl .quarter{bottom:0;left:0;--toward:to top right;}
-.yard.br .quarter{bottom:0;right:0;--toward:to top left;}
-.yard.idle .quarter{background:var(--ivory-2);}
+.quarter{position:absolute;inset:0;background:linear-gradient(var(--toward),var(--tone),var(--tone-d) 45%,var(--wood-dark));}
+.yard.tl .quarter{--toward:to bottom right;}
+.yard.tr .quarter{--toward:to bottom left;}
+.yard.bl .quarter{--toward:to top right;}
+.yard.br .quarter{--toward:to top left;}
+.yard.idle .quarter{background:var(--wood);}
 .courtyard{
   grid-area:2 / 2 / span var(--court) / span var(--court);
   position:relative;display:grid;grid-template:1fr 1fr / 1fr 1fr;place-items:center;
-  background:radial-gradient(circle at 50% 40%,#fffaf0,var(--cream) 70%,var(--ivory-2));border-radius:12%;
-  box-shadow:inset 0 .25rem .5rem rgba(0,0,0,.22),0 1px 0 rgba(255,255,255,.18);
 }
-.socket{
-  width:62%;aspect-ratio:1/1;border-radius:50%;background:color-mix(in srgb,var(--tone) 30%,var(--ivory-2));
-  box-shadow:inset 0 .18rem .35rem rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.7);
-}
+.socket{width:50%;aspect-ratio:1/1;border-radius:50%;background:rgba(20,8,4,.4);box-shadow:inset 0 .12rem .3rem rgba(0,0,0,.45);}
 
-/* Cells: ring (shared track) and lane (a colour's home stretch). A start cell is a ring cell. */
-.cell{
-  position:relative;background:linear-gradient(180deg,#fffaf0,var(--cream) 60%,var(--ivory-2));
-  box-shadow:inset 0 0 0 1px var(--line),inset 0 -.14rem 0 rgba(0,0,0,.07);
-}
-.cell.lane,.cell.start{
-  --line:rgba(255,255,255,.35);
-  background:linear-gradient(180deg,color-mix(in srgb,var(--tone) 78%,white),var(--tone) 60%,var(--tone-d));
-}
-.cell.lane.idle{--line:rgba(42,26,16,.16);background:var(--ivory-2);}
+/* Cells: ring (shared track) and lane (a colour's home stretch). Each is a bead on the wood; a start cell
+   is a ring cell in its player's colour. */
+.cell{position:relative;}
+.cell::before{content:'';position:absolute;inset:9%;border-radius:50%;background:var(--cream);}
+.cell.lane::before,.cell.start::before{background:var(--tone);}
+.cell.lane.idle::before{background:var(--wood);}
 .cell.safe::after{
-  content:'';position:absolute;inset:22%;background:var(--wood-light);
-  clip-path:polygon(50% 0%,63% 38%,100% 38%,69% 61%,82% 100%,50% 76%,18% 100%,31% 61%,0% 38%,37% 38%);
+  content:'';position:absolute;inset:26%;background:var(--wood-light);
+  clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);
 }
 .cell.start.safe::after{background:var(--cream);}
 
-/* The centre circle, inscribed in the CORE_SIZE square: its edge never reaches a cell. The rim, wedge seams
-   and hub are drawn inside it, in percentages, so it stays exact at any board size. */
+/* The centre: CORE_SIZE squared, cut on both diagonals into one triangle per corner, each facing the lane
+   that feeds it. Finished pieces rest in their colour's triangle. */
 .core{
   grid-area:var(--core-at) / var(--core-at) / span var(--core) / span var(--core);
-  position:relative;z-index:2;border-radius:50%;overflow:hidden;background:var(--wood-dark);
-  box-shadow:0 .15rem .4rem rgba(0,0,0,.35);
+  position:relative;overflow:hidden;background:var(--wood-dark);
 }
-.wedge{position:absolute;inset:0;background:linear-gradient(160deg,color-mix(in srgb,var(--tone) 80%,white),var(--tone) 55%,var(--tone-d));}
-.wedge.idle{background:var(--ivory-2);}
+.wedge{position:absolute;inset:0;background:var(--tone);}
+.wedge.idle{background:var(--wood);}
 .wedge.tl{clip-path:polygon(0 0,0 100%,50% 50%);}      /* left  : tl's lane arrives from the left   */
 .wedge.tr{clip-path:polygon(0 0,100% 0,50% 50%);}      /* top   : tr's lane arrives from the top    */
 .wedge.br{clip-path:polygon(100% 0,100% 100%,50% 50%);}/* right : br's lane arrives from the right  */
 .wedge.bl{clip-path:polygon(0 100%,100% 100%,50% 50%);}/* bottom: bl's lane arrives from the bottom */
-.core::before{ /* rim and seams between the wedges */
-  content:'';position:absolute;inset:0;z-index:1;
-  background:
-    radial-gradient(circle closest-side,transparent 91%,var(--cream) 91% 95%,var(--wood-dark) 95%),
-    repeating-conic-gradient(from 44.5deg,var(--cream) 0 1deg,transparent 1deg 90deg);
-}
-.core::after{ /* hub */
-  content:'';position:absolute;inset:38%;z-index:2;border-radius:50%;
-  background:radial-gradient(circle at 35% 30%,#fffaf0,var(--cream) 60%,var(--ivory-2));
-  box-shadow:0 0 0 .14rem var(--wood-dark),0 .12rem .3rem rgba(0,0,0,.5);
-}
 
 /* ---- pieces ---- */
-/* --x / --y are the piece's centre in cell units, set by Ludo.placePieces. Size and centring are
-   in percentages of the board, so a piece follows the board whatever size it is drawn at. */
+/* The pawn from the home and setup screens, in its player's colour with a cream edge. The edge and the
+   shadow are filters on the piece; the pawn itself is a masked layer inside it (a filter runs before a mask,
+   so they cannot share an element). --x / --y are the piece's centre in cell units, set by Ludo.placePieces;
+   size and centring are in percentages of the board, so a piece follows the board at any size. */
 .piece{
-  --k:1;--size:calc(100% / var(--grid) * .62);
+  --k:1;--size:calc(100% / var(--grid) * .9);--rim:var(--cream);
+  --pawn:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='2.2 2.1 19.6 19.6'%3E%3Cpath d='M12 2.4a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7zM8.6 10.2h6.8v1.9H8.6zM9.9 12.1h4.2c.1 3 1.3 5.1 3.1 6.4H6.8c1.8-1.3 3-3.4 3.1-6.4zM5.6 18.6h12.8v2.9H5.6z'/%3E%3C/svg%3E");
   position:absolute;z-index:6;
   left:calc(var(--x) * 100% / var(--grid));top:calc(var(--y) * 100% / var(--grid));
   width:var(--size);aspect-ratio:1/1;margin:calc(var(--size) / -2);
-  border-radius:50% 50% 50% 4%;rotate:-45deg;scale:var(--k);
-  background:radial-gradient(circle at 70% 30%,color-mix(in srgb,var(--tone) 62%,white),var(--tone) 55%,var(--tone-d));
-  box-shadow:0 .15rem .3rem rgba(0,0,0,.5),inset 0 0 0 .13rem rgba(255,255,255,.6);
+  scale:var(--k);
+  filter:drop-shadow(.1rem 0 0 var(--rim)) drop-shadow(-.1rem 0 0 var(--rim))
+         drop-shadow(0 .1rem 0 var(--rim)) drop-shadow(0 -.1rem 0 var(--rim))
+         drop-shadow(0 .15rem .2rem rgba(0,0,0,.55));
   transition:left .45s cubic-bezier(.4,0,.2,1),top .45s cubic-bezier(.4,0,.2,1),scale .2s ease;
 }
+.piece::after{content:'';position:absolute;inset:0;background:var(--tone);mask:var(--pawn) center / contain no-repeat;}
 .piece.stacked{--k:.76;}
 .piece.done{--k:.58;}
-.piece.movable{
-  z-index:8;cursor:pointer;animation:pulse 1s ease-in-out infinite;
-  box-shadow:0 0 0 .16rem var(--gold-light),0 .15rem .5rem rgba(0,0,0,.6),inset 0 0 0 .13rem rgba(255,255,255,.6);
-}
+.piece.movable{--rim:var(--gold-light);z-index:8;cursor:pointer;animation:pulse 1s ease-in-out infinite;}
 @keyframes pulse{0%,100%{scale:var(--k);}50%{scale:calc(var(--k) * 1.22);}}
 
 @media (prefers-reduced-motion:reduce){
   .piece{transition-duration:.01s;}
-  .piece.movable,.dice-cube.rolling{animation:none;}
+  .piece.movable,.dice-cube.ready,.dice-cube.rolling{animation:none;}
+  #game{transition:none;}
 }
 
-.winner-overlay{position:fixed;inset:0;background:rgba(15,8,4,.85);display:none;align-items:center;justify-content:center;flex-direction:column;gap:1.1em;z-index:50;}
+/* The win is a full field in the winner's colour, like a setup seat. */
+.winner-overlay{position:fixed;inset:0;background:linear-gradient(160deg,var(--tone-d),var(--wood-dark) 75%);display:none;align-items:center;justify-content:center;flex-direction:column;gap:1.6em;z-index:50;}
 .winner-overlay.active{display:flex;animation:fadeIn .4s ease both;}
-.winner-overlay h2{font-family:var(--font-display);font-size:clamp(1.5rem,4.4vw,2.2rem);color:var(--gold-light);text-align:center;padding:0 1em;}
+.winner-overlay h2{font-family:var(--font-display);font-size:clamp(1.8rem,5vw,3rem);color:var(--cream);text-align:center;padding:0 1em;text-shadow:0 2px 12px rgba(0,0,0,.6);}
