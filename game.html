@@ -5,6 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ludo — Game</title>
 <link rel="stylesheet" href="css/style.css">
+<link rel="preload" href="fonts/fraunces-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="prefetch" href="index.html">
+<link rel="prefetch" href="js/state.js" as="script">
+<link rel="prefetch" href="js/home.js" as="script">
+<script defer blocking="render" src="js/constants.js"></script>
+<script defer blocking="render" src="js/storage.js"></script>
+<script defer blocking="render" src="js/game-state.js"></script>
+<script defer blocking="render" src="js/rules.js"></script>
+<script defer blocking="render" src="js/ai.js"></script>
+<script defer blocking="render" src="js/board.js"></script>
+<script defer blocking="render" src="js/render.js"></script>
+<script defer blocking="render" src="js/dice.js"></script>
+<script defer blocking="render" src="js/game.js"></script>
 </head>
 <body>
 
@@ -27,14 +41,5 @@
   <button type="button" class="cream-btn" id="playAgainBtn">Play again</button>
 </div>
 
-<script src="js/constants.js"></script>
-<script src="js/storage.js"></script>
-<script src="js/game-state.js"></script>
-<script src="js/rules.js"></script>
-<script src="js/ai.js"></script>
-<script src="js/board.js"></script>
-<script src="js/render.js"></script>
-<script src="js/dice.js"></script>
-<script src="js/game.js"></script>
 </body>
 </html>

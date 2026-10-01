@@ -5,6 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ludo — Setup</title>
 <link rel="stylesheet" href="css/style.css">
+<link rel="preload" href="fonts/fraunces-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="prefetch" href="game.html">
+<link rel="prefetch" href="index.html">
+<link rel="prefetch" href="js/game-state.js" as="script">
+<link rel="prefetch" href="js/rules.js" as="script">
+<link rel="prefetch" href="js/ai.js" as="script">
+<link rel="prefetch" href="js/board.js" as="script">
+<link rel="prefetch" href="js/render.js" as="script">
+<link rel="prefetch" href="js/dice.js" as="script">
+<link rel="prefetch" href="js/game.js" as="script">
+<link rel="prefetch" href="js/home.js" as="script">
+<script defer blocking="render" src="js/constants.js"></script>
+<script defer blocking="render" src="js/storage.js"></script>
+<script defer blocking="render" src="js/state.js"></script>
+<script defer blocking="render" src="js/setup.js"></script>
 </head>
 <body>
 
@@ -20,9 +36,5 @@
   <button type="button" class="cream-btn setup-start" id="startGameBtn">Start game</button>
 </div>
 
-<script src="js/constants.js"></script>
-<script src="js/storage.js"></script>
-<script src="js/state.js"></script>
-<script src="js/setup.js"></script>
 </body>
 </html>

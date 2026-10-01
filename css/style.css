@@ -1,4 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+/* Self-hosted (latin subset, variable weight): same origin as the game, so a cold load never waits on a third party.
+   `block` keeps text hidden for a moment rather than drawn in a fallback face that then jumps. */
+@font-face{font-family:'Fraunces';font-style:normal;font-weight:100 900;font-display:block;src:url('../fonts/fraunces-latin-wght-normal.woff2') format('woff2');}
+@font-face{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:block;src:url('../fonts/inter-latin-wght-normal.woff2') format('woff2');}
 
 :root{
   --wood-dark:#2b1810; --wood:#4a2e1f; --wood-light:#6b4226;
@@ -15,7 +18,6 @@
 @property --tone{syntax:'<color>';inherits:true;initial-value:transparent;}
 @property --tone-d{syntax:'<color>';inherits:true;initial-value:transparent;}
 /* The gold ring on a die waiting to be rolled; registered so blink can fade it. */
-@property --glow{syntax:'<color>';inherits:true;initial-value:transparent;}
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;width:100%;overflow:hidden;position:fixed;inset:0;}
 body{
@@ -29,6 +31,13 @@ body{
 .screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;}
 .screen.active{display:flex;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* Every screen is its own page, so a page change is a full reload. Opting in here (all pages share this file)
+   makes the browser cross-fade from the old page to the new one; browsers without support just switch pages. */
+@media (prefers-reduced-motion:no-preference){
+  @view-transition{navigation:auto;}
+  ::view-transition-group(root){animation-duration:.18s;}
+}
 
 /* ---------------- HOME ---------------- */
 #home{flex-direction:row;}
@@ -222,18 +231,22 @@ body{
 /* A die is a board cell that rolls: the same cream tile, with pips in its player's colour. Only the die of
    whoever is on the move is at full strength; its ring blinks while it waits to be rolled. */
 .dice-cube{
-  width:calc(var(--die) * .82);aspect-ratio:1/1;border-radius:14%;
+  position:relative;width:calc(var(--die) * .82);aspect-ratio:1/1;border-radius:14%;
   background:linear-gradient(180deg,#fffaf0,var(--cream) 60%,var(--ivory-2));
   display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:12%;
   box-shadow:0 .2rem 0 rgba(0,0,0,.28),0 .5rem .9rem rgba(0,0,0,.4);
   opacity:.55;pointer-events:none;transition:opacity .3s ease;
 }
 .dice-cube.turn{opacity:1;}
-.dice-cube.ready{
-  cursor:pointer;pointer-events:auto;--glow:var(--gold-light);animation:blink 1s ease-in-out infinite;
-  box-shadow:0 0 0 .16rem var(--glow),0 .2rem 0 rgba(0,0,0,.28),0 .5rem .9rem rgba(0,0,0,.4);
+.dice-cube.ready{cursor:pointer;pointer-events:auto;}
+/* The ring is a layer of its own so that blinking it is only an opacity fade, which the GPU does without the
+   page re-styling and repainting every frame. Mid-roll it stays lit while the die shakes. */
+.dice-cube.ready::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 .16rem var(--gold-light);
+  animation:blink 1s ease-in-out infinite;
 }
 .dice-cube.rolling{animation:diceShake .13s linear infinite;}
+.dice-cube.rolling::after{animation:none;}
 @keyframes diceShake{0%{transform:rotate(-6deg);}50%{transform:rotate(6deg);}100%{transform:rotate(-6deg);}}
 .pip{width:100%;height:100%;border-radius:50%;background:var(--tone-d);opacity:0;align-self:center;justify-self:center;}
 .pip.on{opacity:1;}
@@ -298,15 +311,15 @@ body{
    cannot share an element). --x / --y are the piece's centre in cell units, set by Ludo.placePieces; size and
    centring are in percentages of the board, so a piece follows the board at any size. */
 .piece{
-  --k:1;--size:calc(100% / var(--grid) * .9);--rim:var(--cream);--rim-w:.1rem;--halo:transparent;--move:.45s;
+  --k:1;--size:calc(100% / var(--grid) * .9);--rim:var(--cream);--rim-w:.1rem;--move:.45s;
   position:absolute;z-index:6;
   left:calc(var(--x) * 100% / var(--grid));top:calc(var(--y) * 100% / var(--grid));
   width:var(--size);aspect-ratio:1/1;margin:calc(var(--size) / -2);
   scale:var(--k);
-  filter:drop-shadow(var(--rim-w) 0 0 var(--rim)) drop-shadow(calc(var(--rim-w) * -1) 0 0 var(--rim))
-         drop-shadow(0 var(--rim-w) 0 var(--rim)) drop-shadow(0 calc(var(--rim-w) * -1) 0 var(--rim))
-         drop-shadow(0 0 .4rem var(--halo))
-         drop-shadow(0 .15rem .2rem rgba(0,0,0,.55));
+  --rim-fx:drop-shadow(var(--rim-w) 0 0 var(--rim)) drop-shadow(calc(var(--rim-w) * -1) 0 0 var(--rim))
+           drop-shadow(0 var(--rim-w) 0 var(--rim)) drop-shadow(0 calc(var(--rim-w) * -1) 0 var(--rim));
+  --lift-fx:drop-shadow(0 .15rem .2rem rgba(0,0,0,.55));
+  filter:var(--rim-fx) var(--lift-fx);
   transition:left var(--move) cubic-bezier(.4,0,.2,1),top var(--move) cubic-bezier(.4,0,.2,1),scale .2s ease;
 }
 /* The shape itself, also used by the option previews on the settings page. */
@@ -321,14 +334,17 @@ body{
 .piece.done{--k:.58;}
 /* a piece walking to its new cell: full size and above everything else it passes (Ludo.walkPiece sets --move) */
 .piece.moving{--k:1;z-index:9;}
-.piece.movable{--rim:var(--gold-light);--rim-w:.14rem;--halo:var(--gold-glow);z-index:8;cursor:pointer;}
+.piece.movable{
+  --rim:var(--gold-light);--rim-w:.14rem;z-index:8;cursor:pointer;
+  filter:var(--rim-fx) drop-shadow(0 0 .4rem var(--gold-glow)) var(--lift-fx);   /* the halo exists only here: a blur pass per piece is costly */
+}
 /* A die waiting to be rolled blinks its gold ring: to nothing and back. With reduced motion the ring simply
    stays lit. A movable piece does not blink: it keeps a steady gold ring and halo. */
-@keyframes blink{0%,100%{--glow:var(--gold-light);}50%{--glow:transparent;}}
+@keyframes blink{50%{opacity:0;}}
 
 @media (prefers-reduced-motion:reduce){
   .piece{transition-duration:.01s;}
-  .dice-cube.ready,.dice-cube.rolling{animation:none;}
+  .dice-cube.ready::after,.dice-cube.rolling{animation:none;}
   #game{transition:none;}
 }
 
