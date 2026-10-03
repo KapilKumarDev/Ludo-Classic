@@ -44,7 +44,7 @@ Ludo.FINISH_STEPS = Ludo.HOME_ENTRY_STEP + Ludo.HOME_LANE_LEN; // one step past 
 Ludo.STEP_MS = 200;
 
 // Player-adjustable settings: the piece styles on offer (id -> label) and the value a fresh browser starts with.
-// The keys of PIECE_STYLES are also the `pawn` / `disc` variant classes in style.css.
+// The keys of PIECE_STYLES are also the `pawn` / `disc` variant classes in base.css.
 Ludo.PIECE_STYLES = { pawn:'Pawn', disc:'Disc' };
 Ludo.DEFAULT_SETTINGS = { pieceStyle:'pawn' };
 

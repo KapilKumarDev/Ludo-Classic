@@ -1,0 +1,23 @@
+#home{flex-direction:row;}
+.home-panel{
+  flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.1em;
+  cursor:pointer;position:relative;transition:flex .35s ease;border:none;background:none;color:var(--cream);
+}
+.home-panel:hover{flex:1.12;}
+.home-panel.computer{background:linear-gradient(160deg,var(--blue-d),var(--wood-dark) 75%);}
+.home-panel.local{background:linear-gradient(160deg,var(--red-d),var(--wood-dark) 75%);}
+.home-panel .icon{font-size:clamp(2.6rem,6vw,4rem);}
+.home-panel .label{font-family:var(--font-display);font-weight:700;font-size:clamp(1.3rem,3.4vw,2.1rem);}
+.home-panel .sub{opacity:.7;font-size:clamp(.75rem,1.6vw,.95rem);max-width:70%;text-align:center;}
+
+/* The way into the settings: a labelled pill on a dark backing, so it stays readable over either panel colour,
+   with a target at least 44px tall (the touch-size guideline) rather than a few pixels of bare text. */
+.settings-link{
+  position:absolute;z-index:2;top:calc(env(safe-area-inset-top,0px) + .8rem);right:clamp(1rem,3vw,2rem);
+  display:flex;align-items:center;gap:.5rem;min-height:2.75rem;padding:0 1.1rem;
+  border:1px solid rgba(246,239,224,.4);border-radius:999px;background:rgba(20,8,4,.55);
+  color:var(--cream);font:600 1rem var(--font-body);text-decoration:none;
+  transition:background .15s ease,border-color .15s ease;
+}
+.settings-link:hover{background:rgba(20,8,4,.8);border-color:var(--gold-light);}
+.settings-icon{font-size:1.25rem;line-height:1;}

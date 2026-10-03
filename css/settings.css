@@ -1,0 +1,19 @@
+/* One group per setting, centred on the wood. Options are text on the field: dim until hovered, gold and
+   underlined when chosen (the underline, not colour alone, marks the choice). */
+#settings{gap:2.2rem;}
+.setting{display:flex;flex-direction:column;align-items:center;gap:1.4rem;}
+.setting-label{
+  font:600 clamp(.85rem,1.8vw,1.05rem) var(--font-body);letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(246,239,224,.7);
+}
+.setting-options{display:flex;gap:clamp(2rem,8vw,4.5rem);}
+.piece-opt{
+  --tone:rgba(246,239,224,.55);
+  display:flex;flex-direction:column;align-items:center;gap:.8rem;padding:.6rem;
+  background:none;border:none;cursor:pointer;color:var(--tone);
+  font:700 clamp(1.05rem,2.2vw,1.35rem) var(--font-display);transition:--tone .15s ease;
+}
+.piece-opt:hover{--tone:var(--cream);}
+.piece-opt.sel{--tone:var(--gold-light);}
+.piece-opt .token{width:clamp(3rem,9vw,4.4rem);}
+.piece-opt.sel .piece-label{text-decoration:underline 2px;text-underline-offset:.35em;}

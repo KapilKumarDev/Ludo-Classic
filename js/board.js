@@ -1,7 +1,7 @@
 // board.js — the board: its cells, yards, centre, and the pieces standing on it.
 // Every cell is derived from the tables in constants.js (PATH, START_INDEX, SAFE_INDICES,
 // homeColumnCell), so what is drawn is exactly what the rules walk on. Styling lives in
-// style.css; this file only picks classes and hands positions to CSS as custom properties
+// game.css; this file only picks classes and hands positions to CSS as custom properties
 // (--x / --y, in cell units) so a piece can slide between cells.
 
 // "r,c" -> what that cell is. Only cells of the cross appear; the four corner yards are not cells.
