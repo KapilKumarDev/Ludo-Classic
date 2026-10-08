@@ -1,42 +1,41 @@
-// settings.js — settings screen: one option group per setting, saved the moment a choice is made.
+// settings.js — the settings screen: one option group per setting, saved the moment a choice is made.
 // Each option previews itself with the same .token shape the board draws, so what you pick is what you get.
-
-(function init(){
+(function settingsScreen() {
   const row = document.getElementById('pieceStyleRow');
-  Object.entries(Ludo.PIECE_STYLES).forEach(([style, text])=>{
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'piece-opt';
-    btn.dataset.style = style;
+
+  Object.entries(Ludo.PIECE_STYLES).forEach(([style, label]) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'piece-opt';
+    button.dataset.style = style;
 
     const token = document.createElement('span');
-    token.className = 'token '+style;
-    token.setAttribute('aria-hidden','true');
+    token.className = 'token ' + style;
+    token.setAttribute('aria-hidden', 'true');
 
-    const label = document.createElement('span');
-    label.className = 'piece-label';
-    label.textContent = text;
+    const text = document.createElement('span');
+    text.className = 'piece-label';
+    text.textContent = label;
 
-    btn.append(token, label);
-    row.appendChild(btn);
+    button.append(token, text);
+    row.appendChild(button);
   });
-  render();
+
+  function renderSelection() {
+    row.querySelectorAll('.piece-opt').forEach(button => {
+      const selected = Ludo.settings.pieceStyle === button.dataset.style;
+      button.classList.toggle('sel', selected);
+      button.setAttribute('aria-pressed', selected);
+    });
+  }
+
+  row.addEventListener('click', event => {
+    const button = event.target.closest('.piece-opt');
+    if (!button) return;
+    Ludo.settings.pieceStyle = button.dataset.style;
+    Ludo.saveSettings();
+    renderSelection();
+  });
+
+  renderSelection();
 })();
-
-document.getElementById('settingsBack').addEventListener('click', ()=>{ location.href = 'index.html'; });
-
-document.getElementById('pieceStyleRow').addEventListener('click', (e)=>{
-  const btn = e.target.closest('.piece-opt');
-  if(!btn) return;
-  Ludo.settings.pieceStyle = btn.dataset.style;
-  Ludo.saveSettings();
-  render();
-});
-
-function render(){
-  document.querySelectorAll('#pieceStyleRow .piece-opt').forEach(btn=>{
-    const on = Ludo.settings.pieceStyle === btn.dataset.style;
-    btn.classList.toggle('sel', on);
-    btn.setAttribute('aria-pressed', on);
-  });
-}

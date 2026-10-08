@@ -1,21 +1,25 @@
-// ai.js — heuristic move choice for computer-controlled players
-Ludo.aiPickMove = function(p, movable, val){
-  let best = null, bestScore = -1;
-  movable.forEach(pc=>{
-    let score = 1;
-    const dest = pc.steps===-1 ? 0 : pc.steps+val;
-    if(dest===Ludo.FINISH_STEPS) score = 100;
-    else if(pc.steps===-1) score = 40;
-    else {
-      const abs = (Ludo.START_INDEX[p.slot] + dest) % Ludo.RING_LENGTH;
-      const wouldKill = Ludo.state.players.some(op =>
-        op!==p && (!op.team || op.team!==p.team) &&
-        op.pieces.some(opc => opc.steps>=0 && opc.steps<Ludo.HOME_ENTRY_STEP && Ludo.absIndexOf(op,opc)===abs) &&
-        !Ludo.SAFE_INDICES.has(abs)
-      );
-      score = wouldKill ? 80 : 20 + pc.steps*0.3;
+// ai.js — how the computer chooses among its legal moves: finish a piece, else capture, else bring one out,
+// else advance the piece that has gone furthest. It does not look ahead or weigh danger.
+(function () {
+  const SCORE = { finish: 100, capture: 80, leaveYard: 40, advance: 20 };
+  const PROGRESS_WEIGHT = 0.3; // among plain advances, a piece further along scores a little higher
+
+  function scoreMove(player, piece, roll) {
+    const to = Ludo.landingSteps(piece, roll);
+    if (to === Ludo.FINISH_STEPS) return SCORE.finish;
+    if (piece.steps === Ludo.IN_YARD) return SCORE.leaveYard;
+    // Only a landing on the shared ring can capture; a step into the home lane never does.
+    const captures = to < Ludo.HOME_ENTRY_STEP && Ludo.victimsAt(player, Ludo.ringIndexAt(player, to)).length > 0;
+    return captures ? SCORE.capture : SCORE.advance + piece.steps * PROGRESS_WEIGHT;
+  }
+
+  // The best of `movable` (never empty) for `roll`; the first of equals.
+  Ludo.pickComputerMove = function (player, movable, roll) {
+    let best = movable[0], bestScore = scoreMove(player, best, roll);
+    for (const piece of movable.slice(1)) {
+      const score = scoreMove(player, piece, roll);
+      if (score > bestScore) { best = piece; bestScore = score; }
     }
-    if(score > bestScore){ bestScore = score; best = pc; }
-  });
-  return best;
-};
+    return best;
+  };
+})();

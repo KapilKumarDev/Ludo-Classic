@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2b1810">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <title>Ludo — Settings</title>
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/settings.css">
@@ -18,14 +21,14 @@
 </head>
 <body>
 
-<div id="settings" class="screen active">
-  <button type="button" class="back-btn" id="settingsBack">← Back</button>
-  <h1 class="settings-title">Settings</h1>
+<main id="settings" class="screen">
+  <a class="back-btn" href="index.html">← Back</a>
+  <h1 class="page-title">Settings</h1>
   <section class="setting">
     <h2 class="setting-label" id="pieceStyleLabel">Pieces</h2>
     <div class="setting-options" id="pieceStyleRow" role="group" aria-labelledby="pieceStyleLabel"></div>
   </section>
-</div>
+</main>
 
 </body>
 </html>

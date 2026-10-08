@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2b1810">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <title>Ludo</title>
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/home.css">
@@ -21,20 +24,20 @@
 </head>
 <body>
 
-<div id="home" class="screen active">
-  <div class="home-title">LUDO</div>
+<main id="home" class="screen">
+  <h1 class="page-title">LUDO</h1>
   <a class="settings-link" href="settings.html"><span class="settings-icon" aria-hidden="true">⚙︎</span>Settings</a>
-  <button class="home-panel computer" data-mode="computer">
-    <div class="icon">♟</div>
-    <div class="label">Vs Computer</div>
-    <div class="sub">Play against AI opponents</div>
+  <button type="button" class="home-panel computer" data-mode="computer">
+    <span class="icon" aria-hidden="true">♟</span>
+    <span class="label">Vs Computer</span>
+    <span class="sub">Play against AI opponents</span>
   </button>
-  <button class="home-panel local" data-mode="local">
-    <div class="icon">◈</div>
-    <div class="label">Local</div>
-    <div class="sub">Pass and play with friends</div>
+  <button type="button" class="home-panel local" data-mode="local">
+    <span class="icon" aria-hidden="true">◈</span>
+    <span class="label">Local</span>
+    <span class="sub">Pass and play with friends</span>
   </button>
-</div>
+</main>
 
 </body>
 </html>

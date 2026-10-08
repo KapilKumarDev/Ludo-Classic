@@ -4,38 +4,46 @@
 @font-face{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:block;src:url('../fonts/inter-latin-wght-normal.woff2') format('woff2');}
 
 :root{
+  color-scheme:dark;
   --wood-dark:#2b1810; --wood:#4a2e1f; --wood-light:#6b4226;
   --ivory-2:#e8dabb;
-  --cream:#f6efe0;
+  --cream:#f6efe0; --cream-dim:rgba(246,239,224,.55); --cream-soft:rgba(246,239,224,.72);
   --red:#c0392b;   --red-d:#8a2419;
   --green:#1e8449; --green-d:#125c31;
   --yellow:#e1a014; --yellow-d:#a9760a;
   --blue:#2461a8;  --blue-d:#173f70;
   --gold-light:#e9cf7a; --gold-glow:#ffb800;
   --font-display:'Fraunces',serif; --font-body:'Inter',sans-serif;
+  /* legible over any colour field */
+  --text-shadow:0 1px 3px rgba(0,0,0,.9),0 2px 10px rgba(0,0,0,.65);
 }
 /* Registered so a colour swap can be eased (the game screen takes the mover's colour). */
 @property --tone{syntax:'<color>';inherits:true;initial-value:transparent;}
 @property --tone-d{syntax:'<color>';inherits:true;initial-value:transparent;}
 
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;width:100%;overflow:hidden;position:fixed;inset:0;}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;}
 body{
-  font-family:var(--font-body);
+  font-family:var(--font-body);color:var(--cream);
   background:radial-gradient(ellipse at 50% 30%,var(--wood-light) 0%,var(--wood) 55%,var(--wood-dark) 100%);
-  color:var(--cream);
-  display:flex;align-items:center;justify-content:center;
-  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;}
+button:disabled{cursor:default;}
+a{color:inherit;}
+:focus-visible{outline:2px solid var(--gold-light);outline-offset:3px;}
 
-.screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;}
-.screen.active{display:flex;}
+/* Every page is a single screen filling the window. */
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;}
 
 /* Every screen is its own page, so a page change is a full reload. Opting in here (all pages share this file)
    makes the browser cross-fade from the old page to the new one; browsers without support just switch pages. */
 @media (prefers-reduced-motion:no-preference){
   @view-transition{navigation:auto;}
   ::view-transition-group(root){animation-duration:.18s;}
+}
+/* One switch for every transition and animation in the game, JS-driven pieces included (they glide by transition). */
+@media (prefers-reduced-motion:reduce){
+  *,::before,::after{transition-duration:.01ms !important;animation-duration:.01ms !important;animation-iteration-count:1 !important;}
 }
 
 /* Each player's colour: an element takes --tone / --tone-d from one of these classes. */
@@ -44,27 +52,25 @@ body{
 .tone-yellow{--tone:var(--yellow);--tone-d:var(--yellow-d);}
 .tone-blue{--tone:var(--blue);--tone-d:var(--blue-d);}
 
-.home-title,.settings-title{
-  position:absolute;top:6%;left:50%;transform:translateX(-50%);
+.page-title{
+  position:absolute;top:6%;left:0;right:0;text-align:center;z-index:2;pointer-events:none;
   font-family:var(--font-display);font-weight:700;letter-spacing:.03em;
   font-size:clamp(1.8rem,4.4vw,3rem);color:var(--gold-light);
-  text-shadow:0 3px 10px rgba(0,0,0,.5);z-index:2;pointer-events:none;
+  text-shadow:0 3px 10px rgba(0,0,0,.5);
 }
 
-/* Back/Exit sits directly on the colour, like the home title: no bar behind it. */
+/* Back/Exit sits directly on the colour, like the page title: no bar behind it. The negative margin pads the
+   touch target without moving the label. */
 .back-btn{
   position:absolute;z-index:2;top:calc(env(safe-area-inset-top,0px) + 1.1rem);left:clamp(1rem,3vw,2rem);
-  background:none;border:none;color:var(--cream);font:500 .9rem var(--font-body);cursor:pointer;
-  text-shadow:0 1px 3px rgba(0,0,0,.9),0 2px 10px rgba(0,0,0,.65);padding:.6rem;margin:-.6rem;
+  font:500 .9rem var(--font-body);text-decoration:none;text-shadow:var(--text-shadow);padding:.6rem;margin:-.6rem;
 }
 
 .cream-btn{
-  width:min(22rem,80%);padding:.85em 0;border-radius:6px;border:none;
+  width:min(22rem,80%);padding:.85em 0;border-radius:6px;
   background:var(--cream);color:var(--wood-dark);
-  font:700 clamp(1.05rem,2.4vw,1.3rem) var(--font-display);cursor:pointer;
+  font:700 clamp(1.05rem,2.4vw,1.3rem) var(--font-display);
 }
-
-#home :focus-visible,#setup :focus-visible,#settings :focus-visible,#game :focus-visible{outline:2px solid var(--gold-light);outline-offset:3px;}
 
 /* The shape itself, also used by the option previews on the settings page. */
 .token{display:block;width:100%;aspect-ratio:1/1;background:var(--tone);}

@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2b1810">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <title>Ludo — Setup</title>
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/setup.css">
@@ -16,8 +19,8 @@
 <link rel="prefetch" href="js/rules.js" as="script">
 <link rel="prefetch" href="js/ai.js" as="script">
 <link rel="prefetch" href="js/board.js" as="script">
-<link rel="prefetch" href="js/render.js" as="script">
-<link rel="prefetch" href="js/dice.js" as="script">
+<link rel="prefetch" href="js/hud.js" as="script">
+<link rel="prefetch" href="js/turn.js" as="script">
 <link rel="prefetch" href="js/game.js" as="script">
 <link rel="prefetch" href="js/home.js" as="script">
 <script defer blocking="render" src="js/constants.js"></script>
@@ -27,8 +30,8 @@
 </head>
 <body>
 
-<div id="setup" class="screen active">
-  <button type="button" class="back-btn" id="setupBack">← Back</button>
+<main id="setup" class="screen">
+  <a class="back-btn" href="index.html">← Back</a>
   <div class="count-row" id="countRow" role="group" aria-label="Number of players">
     <button type="button" class="count-opt" data-count="2">2</button>
     <button type="button" class="count-opt" data-count="3">3</button>
@@ -37,7 +40,7 @@
   <button type="button" class="team-toggle" id="teamToggle" hidden></button>
   <div class="lineup" id="lineup"></div>
   <button type="button" class="cream-btn setup-start" id="startGameBtn">Start game</button>
-</div>
+</main>
 
 </body>
 </html>
